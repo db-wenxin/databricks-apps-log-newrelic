@@ -6,7 +6,7 @@ A simple guide to send Databricks Apps logs to New Relic APM for centralized mon
 1. **Add New Relic to your app dependencies**
 
 2. **Create or download `newrelic.ini`**
-- Set your license key and app name
+- Set your **license key** and **app name** in newrelic.init
 - Place this file in your app's root directory
 
 3. **Update `app.yaml` to use New Relic admin**
