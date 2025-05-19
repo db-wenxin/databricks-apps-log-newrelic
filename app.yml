@@ -1,0 +1,11 @@
+command: [
+  "newrelic-admin",
+  "run-program",
+  "flask",
+  "--app",
+  "app.py",
+  "run"
+]
+env:
+  - name: "NEW_RELIC_CONFIG_FILE"
+    value: "./newrelic.ini"
