@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Datadog APM Demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .healthy {
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            border-left: 4px solid #f44336;
+        }
+        .btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #d32f2f;
+        }
+        .error-log {
+            background: #ffebee;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+    </style>
+    <script>
+        function refreshData() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    // Update heartbeat
+                    document.getElementById('uptime').textContent = Math.floor(data.heartbeat.uptime_seconds) + 's';
+                    document.getElementById('beat-count').textContent = data.heartbeat.beat_count;
+                    
+                    // Update error count
+                    document.getElementById('error-count').textContent = data.error_count;
+                    
+                    // Update Datadog status
+                    document.getElementById('dd-status').textContent = data.datadog.initialized ? 'Connected' : 'Not Connected';
+                    
+                    // Update error log
+                    const errorContainer = document.getElementById('error-container');
+                    if (data.recent_errors.length > 0) {
+                        errorContainer.innerHTML = data.recent_errors.slice(-5).reverse().map(error => 
+                            `<div class="error-log">${new Date(error.timestamp * 1000).toLocaleTimeString()} - ${error.message}</div>`
+                        ).join('');
+                    }
+                });
+        }
+        
+        function triggerError() {
+            fetch('/api/trigger-error', { method: 'POST' })
+                .then(() => refreshData());
+        }
+        
+        setInterval(refreshData, 2000);
+        window.onload = refreshData;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Datadog APM Error Monitor</h1>
+        
+        <div class="status-card healthy">
+            <h3>Application Status</h3>
+            <div class="metric">
+                <span>Uptime:</span>
+                <span id="uptime">0s</span>
+            </div>
+            <div class="metric">
+                <span>Heartbeat Count:</span>
+                <span id="beat-count">0</span>
+            </div>
+            <div class="metric">
+                <span>Total Errors:</span>
+                <span id="error-count">0</span>
+            </div>
+        </div>
+        
+        <div class="status-card">
+            <h3>Datadog Status</h3>
+            <div class="metric">
+                <span>Connection:</span>
+                <span id="dd-status">Checking...</span>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="btn" onclick="triggerError()">Trigger Test Error</button>
+            <p style="color: #666;">Auto errors every 60 seconds</p>
+        </div>
+        
+        <div class="status-card">
+            <h3>Recent Errors</h3>
+            <div id="error-container">
+                <p style="color: #666;">No errors yet...</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

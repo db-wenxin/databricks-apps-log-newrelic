@@ -1,0 +1,18 @@
+command: [
+  "python",
+  "app.py"
+]
+env:
+  - name: "DD_SERVICE"
+    value: "databricks-datadog-app"
+  - name: "DD_ENV"
+    value: "development"
+  - name: "DD_SITE"
+    value: "us5.datadoghq.com"
+  - name: "DD_HOST"
+    value: "databricks-app1"
+  #Highly recommended to use secret scope to store the API key
+  - name: "DD_API_SECRET_SCOPE"
+    value: "datadog_credentials"
+  - name: "DD_API_SECRET_KEYNAME"
+    value: "datadog_api_key"
